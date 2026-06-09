@@ -47,59 +47,60 @@ function createPost(avatarSrc, author, location, contentSrc, likeCount) {
 
   const likes = document.createElement('p');
   likes.className = 'post__likes';
-  likes.textContent = likeCount.toLocaleString('de-DE').replace('.',',') + ' likes';
+  likes.textContent = likeCount.toLocaleString('de-DE').replace('.', ',') + ' likes';
 
   post.append(img, infoContainer, content, activities, likes);
 
   return post;
 }
+
 function addPostToMain(avatarSrc, author, location, contentSrc, likeCount) {
   const main = document.querySelector('main');
   const post = createPost(avatarSrc, author, location, contentSrc, likeCount);
   main.appendChild(post);
 }
-function getRandom(max){
-    return Math.floor(Math.random()*(max+1));
+
+function getRandom(max) {
+  return Math.floor(Math.random() * (max + 1));
 }
 
-const API_KEY = '56240462-45ff40a3321b4f39ce1d0c437';
-const randomPage = Math.floor(Math.random() * 120) + 1; 
-
-const perPage = getRandom(17) + 3;
-const response = await fetch(`/.netlify/functions/pixabay?per_page=${perPage}`);
-const data = await response.json();
-
 const users = [
-    'AlexJohnson', 'MariaSmith', 'DavidBrown', 'EmmaWilson', 'JamesTaylor',
-    'SophiaMartinez', 'DanielAnderson', 'OliviaThomas', 'MatthewJackson', 'IsabellaWhite',
-    'AndrewHarris', 'MiaMartin', 'JoshuaThompson', 'CharlotteGarcia', 'ChristopherMartinez',
-    'AmandaRobinson', 'BenjaminClark', 'AbigailRodriguez', 'SamuelLewis', 'EmilyLee',
-    'JohnWalker', 'ElizabethHall', 'JosephAllen', 'SofiaYoung', 'DavidKing',
-    'AnnaWright', 'MichaelScott', 'VictoriaGreen', 'RobertBaker', 'LauraAdams'
+  'AlexJohnson', 'MariaSmith', 'DavidBrown', 'EmmaWilson', 'JamesTaylor',
+  'SophiaMartinez', 'DanielAnderson', 'OliviaThomas', 'MatthewJackson', 'IsabellaWhite',
+  'AndrewHarris', 'MiaMartin', 'JoshuaThompson', 'CharlotteGarcia', 'ChristopherMartinez',
+  'AmandaRobinson', 'BenjaminClark', 'AbigailRodriguez', 'SamuelLewis', 'EmilyLee',
+  'JohnWalker', 'ElizabethHall', 'JosephAllen', 'SofiaYoung', 'DavidKing',
+  'AnnaWright', 'MichaelScott', 'VictoriaGreen', 'RobertBaker', 'LauraAdams'
 ];
 
 const locations = [
-    'New York, USA', 'London, UK', 'Paris, France', 'Tokyo, Japan', 'Berlin, Germany',
-    'Rome, Italy', 'Madrid, Spain', 'Amsterdam, Netherlands', 'Toronto, Canada', 'Sydney, Australia',
-    'Los Angeles, USA', 'Manchester, UK', 'Lyon, France', 'Osaka, Japan', 'Munich, Germany',
-    'Milan, Italy', 'Barcelona, Spain', 'Rotterdam, Netherlands', 'Vancouver, Canada', 'Melbourne, Australia',
-    'Chicago, USA', 'Liverpool, UK', 'Marseille, France', 'Kyoto, Japan', 'Hamburg, Germany',
-    'Naples, Italy', 'Valencia, Spain', 'Utrecht, Netherlands', 'Montreal, Canada', 'Perth, Australia'
+  'New York, USA', 'London, UK', 'Paris, France', 'Tokyo, Japan', 'Berlin, Germany',
+  'Rome, Italy', 'Madrid, Spain', 'Amsterdam, Netherlands', 'Toronto, Canada', 'Sydney, Australia',
+  'Los Angeles, USA', 'Manchester, UK', 'Lyon, France', 'Osaka, Japan', 'Munich, Germany',
+  'Milan, Italy', 'Barcelona, Spain', 'Rotterdam, Netherlands', 'Vancouver, Canada', 'Melbourne, Australia',
+  'Chicago, USA', 'Liverpool, UK', 'Marseille, France', 'Kyoto, Japan', 'Hamburg, Germany',
+  'Naples, Italy', 'Valencia, Spain', 'Utrecht, Netherlands', 'Montreal, Canada', 'Perth, Australia'
 ];
 
-fetch(url)
+// ✅ Исправленный запрос (один, без дубляжа)
+const perPage = getRandom(17) + 3; // от 3 до 20
+
+fetch(`/.netlify/functions/pixabay?per_page=${perPage}`)
   .then(response => response.json())
-  .then(data => {
-    // data.hits — массив из 10 изображений
-    console.log(data.hits);
-    for(let i = 0;i<5;i++)
-    {
-    addPostToMain(
-    data.hits[i].largeImageURL,
-    users[getRandom(users.length-1)],
-    locations[getRandom(locations.length-1)],
-    data.hits[i+5].largeImageURL,
-    getRandom(800000)
-        );
+  .then(images => {
+    console.log(images); // images = data.hits из функции
+    
+    // Безопасное создание постов (проверка на выход за границы)
+    const postsCount = Math.min(5, Math.floor(images.length / 2));
+    
+    for (let i = 0; i < postsCount; i++) {
+      addPostToMain(
+        images[i].largeImageURL,           // аватарка (из i)
+        users[getRandom(users.length - 1)],
+        locations[getRandom(locations.length - 1)],
+        images[i + postsCount].largeImageURL, // контент (из i+postsCount)
+        getRandom(800000)
+      );
     }
-  });
+  })
+  .catch(error => console.error('Ошибка загрузки:', error));
