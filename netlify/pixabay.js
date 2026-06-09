@@ -4,7 +4,7 @@ exports.handler = async (event) => {
   const perPage = event.queryStringParameters?.per_page || 10;
   const category = event.queryStringParameters?.category || '';
   
-  let url = `https://pixabay.com/api/?key=${API_KEY}&image_type=photo&per_page=${perPage}&order=latest`;
+  let url = `https://pixabay.com/api/?key=${API_KEY}&q=animals&image_type=photo&per_page=${10}&page=${perPage}&order=latest`;
   if (category) url += `&category=${category}`;
   
   const response = await fetch(url);
